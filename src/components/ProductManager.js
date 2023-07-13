@@ -1,67 +1,68 @@
 import {promises as fs} from 'fs'
+import { nanoid } from 'nanoid'
 
 class ProductManager {
     constructor () {
-        this.path = './productos.txt' 
+        this.path = './src/db/products.json' 
         this.productos = []
     };
 
-    static id = 0
-
-    addProduct = async (title, description, price, img, code, stock) => {
-        ProductManager.id++
-        let newProduct = {
-            title,
-            description,
-            price,
-            img,
-            code,
-            stock,
-            id: ProductManager.id
-        }
-        this.productos.push(newProduct)
-
-        await fs.writeFile(this.path, JSON.stringify(this.productos))
-    };
-
     readProducts = async() => {
-        let respuesta = await fs.readFile(this.path, 'utf-8')
-        return JSON.parse(respuesta)
+        let products = await fs.readFile(this.path, 'utf-8')
+        return JSON.parse(products)
     };
+
+    writeProducts = async (product) =>{
+        await fs.writeFile(this.path, JSON.stringify(product))
+    }
+
+    exist = async (id) =>{
+        let products = await this.readProducts()
+        return products.find(prod => prod.id === id)
+    }
+
+    addProducts = async (product) =>{
+        let productsOld = await this.readProducts()
+        product.id = nanoid()
+        let productAll = [...productsOld, product]
+        await this.writeProducts(productAll)
+        return "Producto Agregado"
+    }
 
     getProducts = async() => {
-        let espera = await this.readProducts()
-        return console.log(espera) 
+        return await this.readProducts()
     };
 
     getProductsById = async(id) => {
-        let espera2 = await this.readProducts()
-        if(!espera2.find(productos => productos.id === id)){
-            console.log('Producto no encontrado')
-        } else {
-            console.log(espera2.find(productos => productos.id === id))
-        }
+        let productsById = await this.exist(id)
+        if(!productsById) return 'Producto no encontrado'
+        return productsById
     };
 
-    deleteProduct = async(id) =>{
-        let espera3 = await this.readProducts()
-        let filter = espera3.filter(productos => productos.id != id)
-        await fs.writeFile(this.path, JSON.stringify(filter))
-        console.log('Producto eliminado')
-    };
-
-    updateProduct = async({id, ...productos}) => {
+    updateProduct = async({id, product}) => {
+        let productsById = await this.exist(id)
+        if(!productsById) return 'Producto no encontrado'
         await this.deleteProduct(id)
         let productOld = await this.readProducts()
-        let productUpdated = [
-            {...productos, id},
-            ...productOld
-        ]
-        await fs.writeFile(this.path, JSON.stringify(productUpdated))
+        let products = [{...product, id : id}, ...productOld]
+        await this.writeProducts(products)
+        return 'Producto actualizado'
+    }
+
+    deleteProduct = async(id) =>{
+        let products = await this.readProducts()
+        let filter = products.some(prod => prod.id === id)
+        if(filter){
+            let filterProducts = products.filter(prod => prod.id != id)
+            await this.writeProducts(filterProducts)
+            return 'Producto Eliminado'
+        }
+        return 'Producto a eliminar no encontrado'
+        
     };
+
 }
 
-const productos = new ProductManager
 
 // productos.addProduct('Titulo1', 'Description1', 2000, 'img1', '3289328', 6)
 // productos.addProduct('Titulo2', 'Description2', 1500, 'img2', '3289339', 4)
