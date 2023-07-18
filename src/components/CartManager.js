@@ -9,21 +9,21 @@ class CartManager{
         this.path = './src/db/cart.json'
     }
 
-    readCarts = async() => {
+    async readCarts () {
         let carts = await fs.readFile(this.path, 'utf-8')
         return JSON.parse(carts)
     };
 
-    writeCarts = async (carts) =>{
+    async writeCarts(carts) {
         await fs.writeFile(this.path, JSON.stringify(carts))
     }
 
-    exist = async (id) =>{
+    async exist(id) {
         let carts = await this.readCarts()
         return carts.find(cart => cart.id === id)
     }
 
-    addCarts = async () => {
+    async addCarts() {
         let cartsOld = await this.readCarts()
         let id = nanoid()
         let cartsConcat = [{id : id, products : []}, ...cartsOld]
@@ -31,13 +31,16 @@ class CartManager{
         return 'Carrito agregado'
     }
 
-    getCartById = async(id) => {
-        let cartById = await this.exist(id)
-        if(!cartById) return 'Carrito no encontrado'
-        return cartById
+    async getCartById(id) {
+        let cart = await this.exist(id);
+        if (!cart) {
+            return null;
+        }
+        return cart;
     };
 
-    addProductInCart = async(cartId, productId) =>{
+
+    async addProductInCart(cartId, productId) {
         let cartById = await this.exist(cartId)
         if(!cartById) return 'Carrito no encontrado'
         let productsById = await productAll.exist(productId)

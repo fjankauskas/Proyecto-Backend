@@ -12,15 +12,46 @@ CartRouter.get('/', async (req, res) =>{
     res.send(await carts.readCarts())
 })
 
-CartRouter.get('/:id', async (req, res) =>{
-    res.send(await carts.getCartById(req.params.id))
-})
+CartRouter.get('/:id', async (req, res) => {
+    const cartId = req.params.id;
 
-CartRouter.post('/:cid/products/:pid', async (req, res) =>{
-    let cartId = req.params.cid
-    let productId = req.params.pid
-    res.send(await carts.addProductInCart(cartId, productId))
-})
+    try {
+        const cart = await carts.getCartById(cartId);
+
+        if (!cart) {
+            return res.status(404).send('No se encontró el carrito con el ID proporcionado');
+        }
+
+        res.send(cart);
+        } catch (error) {
+        res.status(404).send('No se encontró el carrito con el ID proporcionado');
+    }
+});
+
+
+CartRouter.post('/:cid/products/:pid', async (req, res) => {
+    const cartId = req.params.cid;
+    const productId = req.params.pid;
+
+    try {
+        const cart = await carts.getCartById(cartId);
+    
+        if (!cart) {
+            return res.status(404).send('No se encontró el carrito con el ID proporcionado');
+        }
+    
+        const product = await products.getProductById(productId);
+    
+        if (!product) {
+            return res.status(404).send('No se encontró el producto con el ID proporcionado');
+        }
+
+        res.send('Producto agregado al carrito exitosamente');
+        } catch (error) {
+            res.status(404).send('Error al agregar el producto al carrito');
+    }
+});
+
 
 
 export default CartRouter

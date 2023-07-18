@@ -7,21 +7,21 @@ class ProductManager {
         this.productos = []
     };
 
-    readProducts = async() => {
+    async readProducts() {
         let products = await fs.readFile(this.path, 'utf-8')
         return JSON.parse(products)
     };
 
-    writeProducts = async (product) =>{
+    async writeProducts(product) {
         await fs.writeFile(this.path, JSON.stringify(product))
     }
 
-    exist = async (id) =>{
+    async exist(id) {
         let products = await this.readProducts()
         return products.find(prod => prod.id === id)
     }
 
-    addProducts = async (product) =>{
+    async addProducts(product) {
         let productsOld = await this.readProducts()
         product.id = nanoid()
         let productAll = [...productsOld, product]
@@ -29,17 +29,20 @@ class ProductManager {
         return "Producto Agregado"
     }
 
-    getProducts = async() => {
+    async getProducts() {
         return await this.readProducts()
     };
 
-    getProductsById = async(id) => {
-        let productsById = await this.exist(id)
-        if(!productsById) return 'Producto no encontrado'
-        return productsById
+    async getProductsById(id) {
+        let products = await this.exist(id);
+
+        if (!products) {
+            return null;
+        }
+        return products;
     };
 
-    updateProduct = async({id, product}) => {
+    async updateProduct({id, product}) {
         let productsById = await this.exist(id)
         if(!productsById) return 'Producto no encontrado'
         await this.deleteProduct(id)
@@ -49,7 +52,7 @@ class ProductManager {
         return 'Producto actualizado'
     }
 
-    deleteProduct = async(id) =>{
+    async deleteProduct(id){
         let products = await this.readProducts()
         let filter = products.some(prod => prod.id === id)
         if(filter){
@@ -63,33 +66,5 @@ class ProductManager {
 
 }
 
-
-// productos.addProduct('Titulo1', 'Description1', 2000, 'img1', '3289328', 6)
-// productos.addProduct('Titulo2', 'Description2', 1500, 'img2', '3289339', 4)
-// productos.addProduct('Titulo3', 'Description2', 1350, 'img3', '3289339', 7)
-// productos.addProduct('Titulo4', 'Description3', 1800, 'img4', '3289347', 5)
-// productos.addProduct('Titulo5', 'Description3', 1300, 'img5', '3289347', 2)
-// productos.addProduct('Titulo6', 'Description3', 2200, 'img6', '3289347', 3)
-// productos.addProduct('Titulo7', 'Description3', 2800, 'img7', '3289347', 4)
-// productos.addProduct('Titulo8', 'Description3', 1300, 'img8', '3289347', 8)
-// productos.addProduct('Titulo9', 'Description3', 1450, 'img9', '3289347', 7)
-// productos.addProduct('Titulo10', 'Description3', 1970, 'img10', '3289347', 2)
-
-
-// productos.getProducts()
-
-// productos.getProductsById(1)
-
-// productos.deleteProduct(2)
-
-// productos.updateProduct({
-//     title: 'Titulo1',
-//     description: 'Description1',
-//     price: 4000,
-//     img: 'img1',
-//     code: '3289328',
-//     stock: 6,
-//     id: 1
-// })
 
 export default ProductManager
