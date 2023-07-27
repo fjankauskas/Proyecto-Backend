@@ -31,7 +31,7 @@ app.use("/", express.static(__dirname + "/public"));
 app.get("/", async (req, res) => {
     let allProducts = await productos.getProducts()
     res.render("home", {
-        products : products
+        products : allProducts
     });
 });
 
