@@ -1,5 +1,5 @@
 import express from 'express';
-import ProductManager from './components/ProductManager.js';
+import ProductManager from './dao/components/ProductManager.js';
 import ProductRouter from './router/product.routes.js'
 import CartRouter from './router/cart.routes.js'
 import realTimeProductRouter from './router/realTimeProduct.routes.js'
@@ -7,6 +7,8 @@ import { engine } from "express-handlebars";
 import { __dirname } from "./dirname.js";
 import path from "path";
 import fs from 'fs';
+
+
 
 const productsData = fs.readFileSync(path.resolve(__dirname, 'db/products.json'));
 const products = JSON.parse(productsData);
